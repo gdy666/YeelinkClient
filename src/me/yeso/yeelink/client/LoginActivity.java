@@ -1,11 +1,17 @@
 package me.yeso.yeelink.client;
 
+import me.yeso.yeelink.base.User;
+import me.yeso.yeelink.util.DBAdapter;
+import me.yeso.yeelink.util.YeelinkDBHelper;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -79,13 +85,28 @@ public class LoginActivity extends Activity {
 	
 	private void login_result(String response){
 		if(response.indexOf("success")!=-1){	//登陆成功
-		//	Toast.makeText(LoginActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
 			int index;
 			index=response.indexOf("apikey");
 			index+=9;
 			apikey=response.substring(index, index+32);//获取到APIKEY
+			UserRegister(new User(username,passwd,apikey));	//登陆成功，记录用户信息到数据库
 		}else{//登陆失败
 			Toast.makeText(LoginActivity.this, getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	/*
+	 * 记录用户账号密码APIKEY到数据库
+	 */
+	private void UserRegister(User user){
+		YeelinkDBHelper dbHelper=new YeelinkDBHelper(this, DBAdapter.DB_NAME, null, DBAdapter.VERSION);
+		SQLiteDatabase db=dbHelper.getWritableDatabase();
+		if(DBAdapter.queryUser(db, user)){	//如果表中已经存在用户记录，则更新用户信息
+			DBAdapter.UserUpdate(db, user);
+			Log.v("用户登陆：","表中已经存在用户记录，更新用户信息");
+		}else{//否则插入新记录
+			DBAdapter.UserAdd(db, user);
+			Log.v("用户登陆:","插入新记录");
 		}
 	}
 }
