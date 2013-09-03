@@ -1,5 +1,8 @@
 package me.yeso.yeelink.client;
 
+import me.yeso.yeelink.base.User;
+import me.yeso.yeelink.common.AppConf;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
@@ -11,42 +14,37 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnClickListener{
 	private static final int MSG_MENU_ANI_0=0x00;
 	private static final int MSG_MENU_ANI_1=0x01;
 	private SlidingMenu left_menu;
 	private Toast toast;		//用来提示用户再次按返回键时退出
 	private ImageView iv_setting;
+	private Button bn_about;
+	private Button bn_login_out;
+	private TextView tv_username;
+	private ImageView iv_loginState;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		init_menu();
-		temp();
 		init_view();
+		AppConf.InitSharePreferences(MainActivity.this);	//初始化并读取配置文件
+		checkUser();
 	}
 	
-	private void temp(){
-		Button bn=(Button)findViewById(R.id.bn_login);
-		bn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent=new Intent(MainActivity.this,LoginActivity.class);
-				startActivity(intent);
-			}
-		});
-	}
+
 	
-	/*
-	 * 
-	 */
 	private void init_view(){
 		toast=Toast.makeText(MainActivity.this, getString(R.string.exit_toast), Toast.LENGTH_SHORT);
+		
 	}
 	
 	/*
@@ -81,6 +79,13 @@ public class MainActivity extends Activity {
 		});
 		
 		iv_setting=(ImageView)findViewById(R.id.iv_setting);
+		bn_about=(Button)findViewById(R.id.bn_about);
+		bn_login_out=(Button)findViewById(R.id.bn_login_out);
+		tv_username=(TextView)findViewById(R.id.tv_username);
+		iv_loginState=(ImageView)findViewById(R.id.iv_loginState);
+		
+		bn_about.setOnClickListener(new MenuLister());
+		bn_login_out.setOnClickListener(new MenuLister());
 	}
 	
 
@@ -114,6 +119,93 @@ public class MainActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
 
+	class MenuLister implements View.OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			switch(v.getId()){
+				case R.id.bn_about:
+					Toast.makeText(MainActivity.this, "关于", Toast.LENGTH_SHORT).show();
+					break;
+				case R.id.bn_login_out:
+					//Toast.makeText(MainActivity.this, "登录登出", Toast.LENGTH_SHORT).show();
+					if(bn_login_out.getText().toString().equals("登录")){
+						//Toast.makeText(MainActivity.this, "登录", Toast.LENGTH_SHORT).show();
+						Login();
+					}else{
+						AppConf.WriteCurrentUser("");	//注销时用来清楚配置文件中保存的当前用户
+						setViewNoLogin();
+						Login();
+					}
+					break;
+			}
+		}
+		
+	}
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		}
+		
+	}
+	
+	/*
+	 * 检测配置文件中包存的当前用户
+	 */
+	private void checkUser(){
+		if(!"".equals(AppConf.currentUser)){	//配置文件中保存有用户信息
+			setViewLogin();
+		}
+		else{	//配置文件中未保存有配置信息
+			setViewNoLogin();
+		}
+	}
+	
+	/*
+	 * 将Menu中的控件设置为未登录状态
+	 */
+	private void setViewNoLogin(){
+		tv_username.setText(getString(R.string.none_currentUser));
+		bn_login_out.setText(getString(R.string.login));
+		iv_loginState.setImageDrawable(getResources().getDrawable(R.drawable.login_state_0));
+		left_menu.showMenu();
+		Toast.makeText(MainActivity.this, "请登录", Toast.LENGTH_SHORT).show();
+	}
+	
+	/*
+	 * 将Menu中的控件设置为登录状态
+	 */
+	private void setViewLogin(){
+		tv_username.setText(AppConf.currentUser);
+		bn_login_out.setText(getString(R.string.logout));
+		iv_loginState.setImageDrawable(getResources().getDrawable(R.drawable.login_state_1));
+		//获取数据
+	}
+
+	/*
+	 * 跳转到登录页面
+	 */
+	private void Login(){
+		Intent intent=new Intent(MainActivity.this,LoginActivity.class);
+		startActivityForResult(intent,0);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		switch(resultCode){
+		case RESULT_OK:
+				Bundle bundle=data.getExtras();
+				User user=(User) bundle.getSerializable("user");
+				if(user!=null){
+					AppConf.WriteCurrentUser(user.getUserName());
+					setViewLogin();
+					Toast.makeText(MainActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+					left_menu.showContent();
+				}
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
 }

@@ -9,6 +9,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 public class LoginActivity extends Activity {
-
 	private static String LOGIN_API="http://www.yeelink.net/mobile/login";
 	private String username;
 	private String passwd;
@@ -26,6 +26,9 @@ public class LoginActivity extends Activity {
 	private EditText et_username;
 	private EditText et_passwd;
 	private ImageView iv_login;
+	private Intent intent;
+	private Bundle bundle;
+	private User user=null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -45,6 +48,9 @@ public class LoginActivity extends Activity {
 				login();
 			}
 		});
+		
+		intent=new Intent(this,MainActivity.class);
+		bundle=new Bundle();
 	}
 	
 	private void login(){
@@ -89,7 +95,12 @@ public class LoginActivity extends Activity {
 			index=response.indexOf("apikey");
 			index+=9;
 			apikey=response.substring(index, index+32);//获取到APIKEY
-			UserRegister(new User(username,passwd,apikey));	//登陆成功，记录用户信息到数据库
+			user=new User(username,passwd,apikey);
+			UserRegister(user);	//登陆成功，记录用户信息到数据库
+			bundle.putSerializable("user", user);
+			intent.putExtras(bundle);
+			setResult(RESULT_OK, intent);	//返回结果
+			finish();
 		}else{//登陆失败
 			Toast.makeText(LoginActivity.this, getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
 		}
@@ -108,5 +119,6 @@ public class LoginActivity extends Activity {
 			DBAdapter.UserAdd(db, user);
 			Log.v("用户登陆:","插入新记录");
 		}
-	}
+	}	
+
 }

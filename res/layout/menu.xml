@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/yeelink_set_1"
+        android:layout_marginBottom="10dp"
         >
         <ImageView 
 	        android:id="@+id/iv_setting"
@@ -20,12 +21,55 @@
         />
     </RelativeLayout>
     
-    <TextView
-        android:id="@+id/test"
+    <ImageView 
+        android:id="@+id/iv_loginState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/login_state_0"
         android:layout_below="@id/rl_menuheader"
-        android:layout_marginTop="16dp"
-        android:text="text1" />
+        />
+    
+    <TextView 
+        android:id="@+id/tv_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/iv_loginState"
+        android:layout_alignBottom="@id/iv_loginState"
+        android:text="@string/none_currentUser"
+        android:textColor="@color/white"
+        />
+    
+    <RelativeLayout 
+        android:id="@+id/rl_menu_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        >
+        
+        
+
+        <Button 
+            android:id="@+id/bn_login_out"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/login"
+            android:textSize="35sp"
+            android:textColor="@color/white"
+            android:background="@drawable/menu_button"
+            android:layout_marginBottom="1dp"
+            />
+        
+        <Button 
+            android:id="@+id/bn_about"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/bn_login_out"
+            android:text="@string/about"
+            android:textSize="35sp"
+            android:textColor="@color/white"
+            android:background="@drawable/menu_button"
+            />
+
+    </RelativeLayout>
 
 </RelativeLayout>
