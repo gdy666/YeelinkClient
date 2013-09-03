@@ -2,6 +2,9 @@ package me.yeso.yeelink.client;
 
 import me.yeso.yeelink.base.User;
 import me.yeso.yeelink.common.AppConf;
+import me.yeso.yeelink.util.DBAdapter;
+import me.yeso.yeelink.util.YeelinkAdapter;
+import me.yeso.yeelink.util.YeelinkDBHelper;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
@@ -19,6 +22,7 @@ import android.widget.Toast;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 
 public class MainActivity extends Activity implements View.OnClickListener{
 	private static final int MSG_MENU_ANI_0=0x00;
@@ -30,9 +34,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	private Button bn_login_out;
 	private TextView tv_username;
 	private ImageView iv_loginState;
+	private User currentUser;	//当前用户
+	private YeelinkDBHelper dbHelper;
+	private SQLiteDatabase db;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		dbHelper=new YeelinkDBHelper(this, DBAdapter.DB_NAME, null, DBAdapter.VERSION);
+		db=dbHelper.getWritableDatabase();
 		setContentView(R.layout.main);
 		init_menu();
 		init_view();
@@ -155,11 +164,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	 */
 	private void checkUser(){
 		if(!"".equals(AppConf.currentUser)){	//配置文件中保存有用户信息
-			setViewLogin();
+			currentUser=DBAdapter.getUser(db, AppConf.currentUser);
+			if(currentUser!=null){
+				setViewLogin();
+				return;
+			}
+			
 		}
-		else{	//配置文件中未保存有配置信息
+		//配置文件中未保存有配置信息,或者数据库中未有用户信息
 			setViewNoLogin();
-		}
+		
 	}
 	
 	/*
@@ -181,6 +195,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		bn_login_out.setText(getString(R.string.logout));
 		iv_loginState.setImageDrawable(getResources().getDrawable(R.drawable.login_state_1));
 		//获取数据
+		
+		YeelinkAdapter.getDevices(currentUser);
+		YeelinkAdapter.getSensors(3564,currentUser.getApikey());
 	}
 
 	/*
@@ -199,6 +216,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 				Bundle bundle=data.getExtras();
 				User user=(User) bundle.getSerializable("user");
 				if(user!=null){
+					currentUser=user;
 					AppConf.WriteCurrentUser(user.getUserName());
 					setViewLogin();
 					Toast.makeText(MainActivity.this, "登录成功", Toast.LENGTH_SHORT).show();

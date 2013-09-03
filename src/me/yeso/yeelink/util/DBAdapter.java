@@ -64,4 +64,16 @@ public class DBAdapter {
 			return false;
 		}
 	}
+	
+	/*
+	 * 根据用户名获取从数据库中获取一个用户实例
+	 */
+	public static User getUser(SQLiteDatabase db,String userName){
+		User user=null;
+		Cursor cursor=db.rawQuery("select * from user where username='"+userName+"'", null);
+		if(cursor.moveToNext()){
+			user=new User(cursor.getString(1),cursor.getString(2),cursor.getString(3));
+		}
+		return user;
+	}
 }
