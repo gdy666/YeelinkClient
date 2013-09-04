@@ -233,6 +233,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		bn_login_out.setText(getString(R.string.login));
 		iv_loginState.setImageDrawable(getResources().getDrawable(R.drawable.login_state_0));
 		left_menu.showMenu();
+		currentUser=null;
+		lv_dev.setAdapter(null);
 		Toast.makeText(MainActivity.this, "请登录", Toast.LENGTH_SHORT).show();
 	}
 	

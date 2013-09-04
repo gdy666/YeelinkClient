@@ -31,7 +31,7 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
-		setContentView(R.layout.login);
+		setContentView(R.layout.login_yeelink);
 		init_view();
 		super.onCreate(savedInstanceState);
 	}
