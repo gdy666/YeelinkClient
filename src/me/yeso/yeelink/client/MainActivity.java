@@ -1,9 +1,15 @@
 package me.yeso.yeelink.client;
 
+import java.util.List;
+
+import me.yeso.yeelink.base.Devices;
 import me.yeso.yeelink.base.User;
 import me.yeso.yeelink.common.AppConf;
 import me.yeso.yeelink.util.DBAdapter;
+import me.yeso.yeelink.util.DevLsAdapter;
 import me.yeso.yeelink.util.HttpRequest;
+import me.yeso.yeelink.util.ListViewDropFlush;
+import me.yeso.yeelink.util.ListViewDropFlush.OnRefreshListener;
 import me.yeso.yeelink.util.YeelinkAdapter;
 import me.yeso.yeelink.util.YeelinkDBHelper;
 
@@ -12,6 +18,8 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -28,6 +36,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class MainActivity extends Activity implements View.OnClickListener{
 	private static final int MSG_MENU_ANI_0=0x00;
 	private static final int MSG_MENU_ANI_1=0x01;
+	private static final int FLUSH_LIST=0x02;
 	private SlidingMenu left_menu;
 	private Toast toast;		//用来提示用户再次按返回键时退出
 	private ImageView iv_setting;
@@ -38,6 +47,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	private User currentUser;	//当前用户
 	private YeelinkDBHelper dbHelper;
 	private SQLiteDatabase db;
+	private ListViewDropFlush lv_dev;
+	private MainHandler handler;
+	private Thread getDataThread;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,9 +66,45 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	
 	private void init_view(){
 		toast=Toast.makeText(MainActivity.this, getString(R.string.exit_toast), Toast.LENGTH_SHORT);
+		lv_dev=(ListViewDropFlush)findViewById(R.id.lv_dev);
+		handler=new MainHandler();
+		
+		lv_dev.setonRefreshListener(new OnRefreshListener() {
+			
+			@Override
+			public void onRefresh() {
+				getDevicesData();
+			}
+		});
+	}
+	
+	class MainHandler extends Handler{
+
+		@Override
+		public void handleMessage(Message msg) {
+			switch(msg.arg1){
+				case FLUSH_LIST:	//刷新列表
+					flushDevList((Devices) msg.obj);
+					break;
+			}
+		}
 		
 	}
 	
+	/*
+	 * 刷新设备列表，刷新前先验证
+	 */
+	private void flushDevList(Devices dev){
+		if(dev.state.equals("success")){	//获取数据成功，刷新列表
+			DevLsAdapter ada=new DevLsAdapter(this,dev.devList);
+			lv_dev.setAdapter(ada);
+			lv_dev.onRefreshComplete();
+		}else if("fail".equals(dev.state)){
+			Toast.makeText(MainActivity.this, "获取设备列表数据失败，请尝试重新登陆或重新获取APIKEY.", Toast.LENGTH_SHORT).show();
+		}else{
+			Toast.makeText(MainActivity.this, "网络异常,获取设备列表数据失败", Toast.LENGTH_SHORT).show();
+		}
+	}
 	/*
 	 * 初始化菜单
 	 */
@@ -196,18 +244,26 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		bn_login_out.setText(getString(R.string.logout));
 		iv_loginState.setImageDrawable(getResources().getDrawable(R.drawable.login_state_1));
 		//获取数据
-		
-	//	YeelinkAdapter.getDevices(currentUser);
-	//	YeelinkAdapter.getSensors(3564,currentUser.getApikey());
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				//String apikey=YeelinkAdapter.getAPIKEY("yeso", "cheng989");
-				//System.out.println("GETAPIKEY test:"+apikey);
-				YeelinkAdapter.getDevices("yeso", "6edcfb225b401db3bb165aa4c25a4d19");
-			}
-		}).start();
+		getDevicesData();
+	}
+	
+	/*
+	 * 从网络中获取设备数据
+	 */
+	private void getDevicesData(){
+		//判断一下，防止出现多条相同获取数据的功能线程的情况
+		if(getDataThread==null||getDataThread.getState()!=Thread.State.RUNNABLE){
+		getDataThread=new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Message msg=new Message();
+							msg.arg1=FLUSH_LIST;
+							msg.obj=YeelinkAdapter.getDevices("yeso", "6edcfb225b401db3bb165aa4c25a4d19");
+							handler.sendMessage(msg);
+						}
+					});
+		getDataThread.start();
+		}
 		
 	}
 

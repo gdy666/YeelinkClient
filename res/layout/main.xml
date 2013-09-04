@@ -23,6 +23,13 @@
             android:textSize="20sp"
             />
     </LinearLayout>
+    <me.yeso.yeelink.util.ListViewDropFlush 
+        android:id="@+id/lv_dev"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/ll_header"
+        android:fadingEdge="none"
+        />
     
 
 

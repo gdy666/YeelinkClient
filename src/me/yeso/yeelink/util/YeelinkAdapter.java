@@ -85,7 +85,6 @@ public class YeelinkAdapter {
 			if(response.indexOf("success")!=-1){	//获取成功
 				devices.state="success";
 				devices.devList=jsonToDevices(StringConvert(getDevicesJson(response)));
-				//System.out.println("devList size :"+devices.devList.size());
 			}else if("fail".equals(response)){	//获取失败
 				devices.state="fail";
 			}else{

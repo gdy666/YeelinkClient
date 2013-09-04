@@ -16,4 +16,5 @@
 	<string name="login">登录</string>
 	<string name="logout">注销</string>
 	<string name="APIkey_notcorrect">APIKEY不正确</string>
+	
 </resources>
