@@ -2,16 +2,15 @@ package me.yeso.yeelink.client;
 
 import me.yeso.yeelink.base.User;
 import me.yeso.yeelink.util.DBAdapter;
+import me.yeso.yeelink.util.YeelinkAdapter;
 import me.yeso.yeelink.util.YeelinkDBHelper;
-
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -19,16 +18,16 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 public class LoginActivity extends Activity {
-	private static String LOGIN_API="http://www.yeelink.net/mobile/login";
 	private String username;
 	private String passwd;
-	private String apikey;
 	private EditText et_username;
 	private EditText et_passwd;
 	private ImageView iv_login;
 	private Intent intent;
 	private Bundle bundle;
 	private User user=null;
+	private Handler handler;
+	private Thread loginThread;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -45,12 +44,26 @@ public class LoginActivity extends Activity {
 		iv_login.setOnClickListener(new View.OnClickListener() {		
 			@Override
 			public void onClick(View v) {
-				login();
+				//检测登陆线程是否存在或者在运行，防止重复请求登陆
+				if(loginThread==null||loginThread.getState()!=Thread.State.RUNNABLE){
+					login();
+				}					
 			}
 		});
 		
 		intent=new Intent(this,MainActivity.class);
 		bundle=new Bundle();
+		handler=new LoginHandler();
+	}
+	
+	class LoginHandler extends Handler{
+		@Override
+		public void handleMessage(Message msg) {	//接受子线程的登陆返回信息
+			login_result((String) msg.obj);
+		}
+
+		
+		
 	}
 	
 	private void login(){
@@ -61,49 +74,35 @@ public class LoginActivity extends Activity {
 		}else{
 			//改变登陆按钮状态
 			iv_login.setImageDrawable(getResources().getDrawable(R.drawable.login_btn1));
-			AsyncHttpClient client = new AsyncHttpClient();
-			RequestParams params = new RequestParams();
-			params.put("login", username);
-			params.put("password", passwd);
-			client.get(LOGIN_API, params, new AsyncHttpResponseHandler() {
-	            @Override
-	            public void onSuccess(String response) {
-	            	login_result(response);	//登陆请求得到服务器响应
-	            }
-
-	            @Override
-				public void onFailure(Throwable error, String content) {
-	            	//登陆超时或网络有问题
-	            	Toast.makeText(LoginActivity.this, getString(R.string.login_error_net), Toast.LENGTH_SHORT).show();
-					super.onFailure(error, content);
-				}
-	            
+			
+			loginThread=new Thread(new Runnable() {		
 				@Override
-				public void onFinish() {
-					super.onFinish();
-					//改变登陆按钮状态
-					iv_login.setImageDrawable(getResources().getDrawable(R.drawable.login_btn));
+				public void run() {
+					String apikey=YeelinkAdapter.getAPIKEY(username, passwd);
+					Message msg=new Message();
+					msg.obj=apikey;
+					handler.sendMessage(msg);
 				}
-		            
-	        });
+			});
+			loginThread.start();
 		}
 	}
 	
-	private void login_result(String response){
-		if(response.indexOf("success")!=-1){	//登陆成功
-			int index;
-			index=response.indexOf("apikey");
-			index+=9;
-			apikey=response.substring(index, index+32);//获取到APIKEY
+	private void login_result(String apikey){
+		if(apikey.length()==32){	//成功获取到key
 			user=new User(username,passwd,apikey);
 			UserRegister(user);	//登陆成功，记录用户信息到数据库
 			bundle.putSerializable("user", user);
 			intent.putExtras(bundle);
 			setResult(RESULT_OK, intent);	//返回结果
 			finish();
-		}else{//登陆失败
+		}else if("".equals(apikey)){//用户验证失败
 			Toast.makeText(LoginActivity.this, getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
+			
+		}else{
+			Toast.makeText(LoginActivity.this, getString(R.string.login_error_net), Toast.LENGTH_SHORT).show();
 		}
+		iv_login.setImageDrawable(getResources().getDrawable(R.drawable.login_btn));
 	}
 	
 	/*

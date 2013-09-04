@@ -130,6 +130,7 @@ int layout login 0x7f030000
 int layout main 0x7f030001
 int layout menu 0x7f030002
 int layout slidingmenumain 0x7f030003
+int string APIkey_notcorrect 0x7f07000e
 int string about 0x7f07000b
 int string action_settings 0x7f070001
 int string app_name 0x7f070000

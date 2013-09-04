@@ -3,6 +3,7 @@ package me.yeso.yeelink.client;
 import me.yeso.yeelink.base.User;
 import me.yeso.yeelink.common.AppConf;
 import me.yeso.yeelink.util.DBAdapter;
+import me.yeso.yeelink.util.HttpRequest;
 import me.yeso.yeelink.util.YeelinkAdapter;
 import me.yeso.yeelink.util.YeelinkDBHelper;
 
@@ -196,8 +197,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		iv_loginState.setImageDrawable(getResources().getDrawable(R.drawable.login_state_1));
 		//获取数据
 		
-		YeelinkAdapter.getDevices(currentUser);
-		YeelinkAdapter.getSensors(3564,currentUser.getApikey());
+	//	YeelinkAdapter.getDevices(currentUser);
+	//	YeelinkAdapter.getSensors(3564,currentUser.getApikey());
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				//String apikey=YeelinkAdapter.getAPIKEY("yeso", "cheng989");
+				//System.out.println("GETAPIKEY test:"+apikey);
+				YeelinkAdapter.getDevices("yeso", "6edcfb225b401db3bb165aa4c25a4d19");
+			}
+		}).start();
+		
 	}
 
 	/*
