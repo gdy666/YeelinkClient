@@ -8,8 +8,12 @@ import java.util.regex.Pattern;
 
 import me.yeso.yeelink.base.Device;
 import me.yeso.yeelink.base.Devices;
+import me.yeso.yeelink.base.Sensor;
+import me.yeso.yeelink.base.Sensors;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.google.gson.Gson;
@@ -83,7 +87,7 @@ public class YeelinkAdapter {
 		finally{
 			if(response.indexOf("success")!=-1){	//获取成功
 				devices.state="success";
-				devices.devList=jsonToDevices(StringConvert(getDevicesJson(response)));
+				devices.devList=jsonToDevices(getDevicesJson(response));
 			}else if("fail".equals(response)){	//获取失败
 				devices.state="fail";
 			}else{
@@ -94,10 +98,31 @@ public class YeelinkAdapter {
 		return devices;
 	}
 
-	public static void getSensors(int deviceId,String apikey){
+	public static Sensors getSensors(int deviceId,String apikey){
 		String url="http://api.yeelink.net/v1.0/device/"+deviceId+"/sensors";
-	//	httpGet(url,null,apikey);
+		Sensors sensors=new Sensors();
+		String response="";
+		try{
+			response=HttpRequest.get(url).header("U-ApiKey", apikey).body();
+		}catch(Exception e){
+			response=NET_ERROR;
+		}
+		finally{
+			if(response.indexOf("ncorrect")!=-1){	//apikey有误
+				sensors.state="fail";
+			}else if(!NET_ERROR.equals(response)){	//获取成功
+				sensors.state="success";
+				//String str=StringConvert(response);
+				//System.out.println("转换：\n"+str);
+				//testJson(response);
+				sensors.senList=jsonToSensors(response);
+			}else{
+				sensors.state=response;			//网络异常
+			}
+		}
+		return sensors;
 	}
+	
 	
 	/*
 	 * 从结果中提取devices部分的JSON
@@ -111,7 +136,7 @@ public class YeelinkAdapter {
 	}
 	
 	/*
-	 * JSON转换为实例
+	 * JSON转换为Device实例
 	 */
 	private static List<Device> jsonToDevices(String jsonStr){
 		if(jsonStr.equals("[]")||jsonStr.equals(null)||jsonStr.equals("")){
@@ -124,18 +149,16 @@ public class YeelinkAdapter {
 	}
 
 	/*
-	 * 字符串转中文
+	 * JSON转换为Sensor实例
 	 */
-	private static String StringConvert(String str){
-		String s="'"+str+"'"; 
-		String result="";
-		try {
-			result=new JSONTokener(s).nextValue().toString();
-		} catch (JSONException e) {
-			Log.e("JSON出错", "字符串转中文时出错！");
+	private static List<Sensor> jsonToSensors(String jsonStr){
+		if(jsonStr.equals("[]")||jsonStr.equals(null)||jsonStr.equals("")){
+			return null;
 		}
-		return result;
+		Type listType = new TypeToken<LinkedList<Sensor>>(){}.getType();
+		Gson gson = new Gson();
+		LinkedList<Sensor> list = gson.fromJson(jsonStr, listType);
+		return list;
 	}
-	
 
 }

@@ -1,6 +1,8 @@
 package me.yeso.yeelink.client;
 
 import me.yeso.yeelink.base.Device;
+import me.yeso.yeelink.base.Sensors;
+import me.yeso.yeelink.util.YeelinkAdapter;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,6 +58,12 @@ public class SensorsActivity extends Activity {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				Sensors sensors=YeelinkAdapter.getSensors(dev.getId(), apikey);
+				int size=sensors.senList.size();
+				for(int i=0;i<size;i++){
+					System.out.println(sensors.senList.get(i));
+				}
+				System.out.println("sensors size is "+size);
 				
 			}
 		}).start();
