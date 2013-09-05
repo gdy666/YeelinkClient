@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" 
+    android:background="@drawable/login_bg" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent">
+    <LinearLayout 
+    android:gravity="center"
+	android:id="@+id/title" 
+	android:background="@drawable/title_bar" 
+	android:layout_width="fill_parent" 
+	android:layout_height="45.0dip">
+        <TextView 
+		android:textSize="20.0sp" 
+		android:textColor="@color/white" 
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content" 
+		android:text="@string/login_yeelink" />
+    </LinearLayout>
+    <ImageView 
+		android:layout_gravity="center_horizontal" 
+		android:layout_width="200.0dip" 
+		android:layout_height="72.0dip" 
+		android:layout_marginTop="30.0dip" 
+		android:layout_marginBottom="30.0dip" 
+		android:src="@drawable/yeelink" />
+    <LinearLayout 
+		android:layout_gravity="center_vertical" 
+		android:orientation="vertical" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content">
+        <EditText 
+			android:id="@+id/et_user" 
+			android:background="@drawable/ic_preference_first_normal" 
+			android:paddingBottom="0.0dip" 
+			android:layout_width="fill_parent" 
+			android:layout_height="40.0dip" 
+			android:singleLine="true" 
+			android:drawableLeft="@drawable/login_user"
+			android:hint="@string/user_id"
+			android:inputType="text" />
+        <EditText 
+			android:id="@+id/et_passwd" 
+			android:background="@drawable/ic_preference_last_normal" 
+			android:paddingBottom="0.0dip" 
+			android:layout_width="fill_parent" 
+			android:layout_height="40.0dip" 
+			android:singleLine="true" 
+			android:drawableLeft="@drawable/login_pwd" 
+			android:hint="@string/user_passwd"
+			android:inputType="textPassword" />
+        <ImageView 
+			android:id="@+id/iv_login" 
+			android:clickable="true" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:layout_marginLeft="5.0dip" 
+			android:layout_marginTop="40.0dip" 
+			android:layout_marginRight="5.0dip" 
+			android:src="@drawable/login_btn" />
+    </LinearLayout>
+</LinearLayout>

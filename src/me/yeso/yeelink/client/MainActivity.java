@@ -73,7 +73,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			
 			@Override
 			public void onRefresh() {
-				getDevicesData();
+				if(currentUser!=null){
+					getDevicesData();
+				}else{
+					Toast.makeText(MainActivity.this, "请先登陆", Toast.LENGTH_SHORT).show();
+					lv_dev.onRefreshComplete();
+				}
+				
 			}
 		});
 	}
@@ -98,12 +104,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		if(dev.state.equals("success")){	//获取数据成功，刷新列表
 			DevLsAdapter ada=new DevLsAdapter(this,dev.devList);
 			lv_dev.setAdapter(ada);
-			lv_dev.onRefreshComplete();
+			
 		}else if("fail".equals(dev.state)){
 			Toast.makeText(MainActivity.this, "获取设备列表数据失败，请尝试重新登陆或重新获取APIKEY.", Toast.LENGTH_SHORT).show();
 		}else{
 			Toast.makeText(MainActivity.this, "网络异常,获取设备列表数据失败", Toast.LENGTH_SHORT).show();
 		}
+		lv_dev.onRefreshComplete();
 	}
 	/*
 	 * 初始化菜单
@@ -185,6 +192,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			switch(v.getId()){
 				case R.id.bn_about:
 					Toast.makeText(MainActivity.this, "关于", Toast.LENGTH_SHORT).show();
+					//lv_dev.showFlush();
 					break;
 				case R.id.bn_login_out:
 					//Toast.makeText(MainActivity.this, "登录登出", Toast.LENGTH_SHORT).show();
@@ -260,7 +268,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 						public void run() {
 							Message msg=new Message();
 							msg.arg1=FLUSH_LIST;
-							msg.obj=YeelinkAdapter.getDevices("yeso", "6edcfb225b401db3bb165aa4c25a4d19");
+							msg.obj=YeelinkAdapter.getDevices(currentUser.getUserName(), currentUser.getApikey());
 							handler.sendMessage(msg);
 						}
 					});
