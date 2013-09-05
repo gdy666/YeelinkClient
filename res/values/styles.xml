@@ -16,5 +16,9 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+	<style name="Yeelink_Switch" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:layout_margin">10.0dip</item>
+        <item name="android:button">@drawable/yeelink_switch</item>
+        <item name="android:layout_weight">1.0</item>
+    </style>
 </resources>

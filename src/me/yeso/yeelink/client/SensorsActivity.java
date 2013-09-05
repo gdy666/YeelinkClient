@@ -5,6 +5,7 @@ import me.yeso.yeelink.base.Devices;
 import me.yeso.yeelink.base.Sensors;
 import me.yeso.yeelink.util.ListViewDropFlush;
 import me.yeso.yeelink.util.ListViewDropFlush.OnRefreshListener;
+import me.yeso.yeelink.util.SenLsAdapter;
 import me.yeso.yeelink.util.YeelinkAdapter;
 import android.app.Activity;
 import android.os.Bundle;
@@ -67,8 +68,8 @@ public class SensorsActivity extends Activity {
 	
 	private void flushList(Sensors sen){
 		if(sen.state.equals("success")){//获取成功
-			
-			
+			SenLsAdapter ada=new SenLsAdapter(this, sen.senList);
+			sensorsList.setAdapter(ada);
 		}else if(sen.state.equals("fail")){	//apikey有误
 			Toast.makeText(this, "获取传感器列表数据失败，请尝试重新登陆或重新获取APIKEY.", Toast.LENGTH_SHORT).show();
 		}else{//网络异常
