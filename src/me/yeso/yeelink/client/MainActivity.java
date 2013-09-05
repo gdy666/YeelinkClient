@@ -2,6 +2,7 @@ package me.yeso.yeelink.client;
 
 import java.util.List;
 
+import me.yeso.yeelink.base.Device;
 import me.yeso.yeelink.base.Devices;
 import me.yeso.yeelink.base.User;
 import me.yeso.yeelink.common.AppConf;
@@ -24,6 +25,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,6 +46,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	private Button bn_about;
 	private Button bn_login_out;
 	private TextView tv_username;
+	private TextView tv_nodata;
 	private ImageView iv_loginState;
 	private User currentUser;	//当前用户
 	private YeelinkDBHelper dbHelper;
@@ -67,6 +71,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 	private void init_view(){
 		toast=Toast.makeText(MainActivity.this, getString(R.string.exit_toast), Toast.LENGTH_SHORT);
 		lv_dev=(ListViewDropFlush)findViewById(R.id.lv_dev);
+		tv_nodata=(TextView)findViewById(R.id.tv_mainlistnodata);
 		handler=new MainHandler();
 		
 		lv_dev.setonRefreshListener(new OnRefreshListener() {
@@ -80,6 +85,22 @@ public class MainActivity extends Activity implements View.OnClickListener{
 					lv_dev.onRefreshComplete();
 				}
 				
+			}
+		});
+		
+		lv_dev.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				// TODO Auto-generated method stub
+				Device dev=(Device) lv_dev.getAdapter().getItem(arg2);
+				Intent intent=new Intent(MainActivity.this, SensorsActivity.class);
+				Bundle bundle=new Bundle();
+				bundle.putSerializable("device", dev);
+				bundle.putString("apikey", currentUser.getApikey());
+				intent.putExtra("Bundle", bundle);
+				startActivity(intent);
 			}
 		});
 	}
@@ -105,12 +126,24 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			DevLsAdapter ada=new DevLsAdapter(this,dev.devList);
 			lv_dev.setAdapter(ada);
 			
+			
 		}else if("fail".equals(dev.state)){
 			Toast.makeText(MainActivity.this, "获取设备列表数据失败，请尝试重新登陆或重新获取APIKEY.", Toast.LENGTH_SHORT).show();
 		}else{
 			Toast.makeText(MainActivity.this, "网络异常,获取设备列表数据失败", Toast.LENGTH_SHORT).show();
 		}
+		showNodata(dev);
 		lv_dev.onRefreshComplete();
+	}
+	
+	private void showNodata(Devices dev){
+		if(!dev.state.equals("success")||dev.devList.size()==0){
+			tv_nodata.setVisibility(View.VISIBLE);
+			lv_dev.setVisibility(View.GONE);
+		}else{
+			tv_nodata.setVisibility(View.GONE);
+			lv_dev.setVisibility(View.VISIBLE);
+		}
 	}
 	/*
 	 * 初始化菜单
@@ -243,6 +276,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 		left_menu.showMenu();
 		currentUser=null;
 		lv_dev.setAdapter(null);
+		tv_nodata.setVisibility(View.VISIBLE);
+		lv_dev.setVisibility(View.GONE);
 		Toast.makeText(MainActivity.this, "请登录", Toast.LENGTH_SHORT).show();
 	}
 	

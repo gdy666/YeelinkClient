@@ -38,7 +38,6 @@ public class YeelinkAdapter {
 	private static final String LIST_DEVICES_URL="http://www.yeelink.net/mobile/list_devices";
 	
 	
-	private static String result;	//存放结果
 	
 	/*
 	 * 接受参数

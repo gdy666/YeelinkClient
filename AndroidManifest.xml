@@ -22,6 +22,10 @@
             android:name="me.yeso.yeelink.client.LoginActivity"
             android:screenOrientation="portrait"  > <!-- 限制此页面数竖屏显示 -->
         </activity>
+        <activity 
+            android:name="me.yeso.yeelink.client.SensorsActivity"
+            android:screenOrientation="portrait"  > <!-- 限制此页面数竖屏显示 -->
+        </activity>
     </application>
     <uses-sdk
         android:minSdkVersion="8"

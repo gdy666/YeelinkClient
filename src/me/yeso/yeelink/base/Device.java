@@ -1,9 +1,12 @@
 package me.yeso.yeelink.base;
 
+import java.io.Serializable;
+
 /*
  * 设备类
  */
-public class Device {
+public class Device implements Serializable{
+	private static final long serialVersionUID = -1L; 
 	private int id;				//设备ID
 	private String title;		//设备名称
 	private String about;		//设备描述
