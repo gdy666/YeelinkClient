@@ -112,9 +112,6 @@ public class YeelinkAdapter {
 				sensors.state="fail";
 			}else if(!NET_ERROR.equals(response)){	//获取成功
 				sensors.state="success";
-				//String str=StringConvert(response);
-				//System.out.println("转换：\n"+str);
-				//testJson(response);
 				sensors.senList=jsonToSensors(response);
 			}else{
 				sensors.state=response;			//网络异常
