@@ -157,5 +157,21 @@ public class YeelinkAdapter {
 		LinkedList<Sensor> list = gson.fromJson(jsonStr, listType);
 		return list;
 	}
+	
+	public static String changeSwitchState(String apikey,int device_id,int sensor_id,boolean b){
+		String response="";
+		String order;
+		if(b){
+			order="{ \"value\":1}";
+		}else{
+			order="{ \"value\":0}";
+		}
+		try{
+			response=HttpRequest.post("http://api.yeelink.net/v1.0/device/"+device_id+"/sensor/"+sensor_id+"/datapoints").header("U-ApiKey", apikey).send(order).body();
+		}catch(Exception e){
+			response="error";
+		}
+		return response;
+	}
 
 }

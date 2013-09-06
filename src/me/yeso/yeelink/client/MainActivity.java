@@ -32,6 +32,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -225,7 +227,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
 			switch(v.getId()){
 				case R.id.bn_about:
 					Toast.makeText(MainActivity.this, "关于", Toast.LENGTH_SHORT).show();
-					//lv_dev.showFlush();
+					Dialog dialog = new Dialog(MainActivity.this,R.style.LodingDialog);  
+				    dialog.setContentView(R.layout.loading);
+				    dialog.show();
+					
 					break;
 				case R.id.bn_login_out:
 					//Toast.makeText(MainActivity.this, "登录登出", Toast.LENGTH_SHORT).show();
@@ -305,6 +310,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 							msg.arg1=FLUSH_LIST;
 							msg.obj=YeelinkAdapter.getDevices(currentUser.getUserName(), currentUser.getApikey());
 							handler.sendMessage(msg);
+							
 						}
 					});
 		getDataThread.start();

@@ -18,8 +18,8 @@ import android.widget.Toast;
 
 public class SensorsActivity extends Activity {
 	private static final int FLUSH_LIST=0x00;
-	private String apikey;
-	private Device dev;
+	public static String apikey;
+	public static Device dev;
 	private ListViewDropFlush sensorsList;
 	private TextView nodata;
 	private Handler sensorHandler;
@@ -96,11 +96,9 @@ public class SensorsActivity extends Activity {
 					
 					@Override
 					public void run() {
-						// TODO Auto-generated method stub
 						Message msg=new Message();
 						msg.arg1=FLUSH_LIST;
 						msg.obj=YeelinkAdapter.getSensors(dev.getId(), apikey);
-						System.out.println(((Sensors)msg.obj).senList.get(0));
 						sensorHandler.sendMessage(msg);
 					}
 				});

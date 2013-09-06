@@ -21,4 +21,7 @@
         <item name="android:button">@drawable/yeelink_switch</item>
         <item name="android:layout_weight">1.0</item>
     </style>
+    <style name="LodingDialog" parent="@android:style/Theme.Dialog">  
+        <item name="android:windowBackground">@android:color/transparent</item>  
+    </style> 
 </resources>
