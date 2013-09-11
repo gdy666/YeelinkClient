@@ -2,6 +2,10 @@ package me.yeso.yeelink.client;
 
 import java.util.List;
 
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
+
 import me.yeso.yeelink.base.Device;
 import me.yeso.yeelink.base.Devices;
 import me.yeso.yeelink.base.User;
@@ -14,9 +18,6 @@ import me.yeso.yeelink.util.ListViewDropFlush.OnRefreshListener;
 import me.yeso.yeelink.util.YeelinkAdapter;
 import me.yeso.yeelink.util.YeelinkDBHelper;
 
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnClosedListener;
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu.OnOpenedListener;
 
 import android.os.Bundle;
 import android.os.Handler;
